@@ -36,12 +36,13 @@
 
 // Select camera model
 //#define CAMERA_MODEL_WROVER_KIT
-#define CAMERA_MODEL_ESP_EYE
+//#define CAMERA_MODEL_ESP_EYE
 //#define CAMERA_MODEL_M5STACK_PSRAM
 //#define CAMERA_MODEL_M5STACK_WIDE
-//#define CAMERA_MODEL_AI_THINKER
+#define CAMERA_MODEL_AI_THINKER
 
 #include "camera_pins.h"
+#include "camera_settings.h"
 
 /*
   Next one is an include with wifi credentials.
@@ -75,9 +76,6 @@ SemaphoreHandle_t camSync = NULL ;
 
 // Queue stores currently connected clients to whom we are streaming
 QueueHandle_t streamingClients;
-
-// We will try to achieve 25 FPS frame rate
-const int FPS = 14;
 
 // We will handle web client requests every 50 ms (20 Hz)
 const int WSINTERVAL = 100;
@@ -446,6 +444,13 @@ void setup()
     ESP.restart();
   }
 
+  sensor_t * s = esp_camera_sensor_get();
+#ifdef HMIRROR
+  s->set_hmirror(s, 1) ;
+#endif
+#ifdef FLIP  
+  s->set_vflip(s, 1);
+#endif
 
   //  Configure and connect to WiFi
   IPAddress ip;
