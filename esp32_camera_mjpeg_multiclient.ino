@@ -70,6 +70,9 @@ TaskHandle_t tStream;  // actually streaming frames to all connected clients
 // frameSync semaphore is used to prevent streaming buffer as it is replaced with the next frame
 SemaphoreHandle_t frameSync = NULL;
 
+// camSync semaphore is used to sync access to the camera
+SemaphoreHandle_t camSync = NULL ;
+
 // Queue stores currently connected clients to whom we are streaming
 QueueHandle_t streamingClients;
 
@@ -88,6 +91,10 @@ void mjpegCB(void* pvParameters) {
   // Creating frame synchronization semaphore and initializing it
   frameSync = xSemaphoreCreateBinary();
   xSemaphoreGive( frameSync );
+
+  // Creating camera synchronization semaphore and initializing it
+  camSync = xSemaphoreCreateBinary();
+  xSemaphoreGive( camSync );
 
   // Creating a queue to track all connected clients
   streamingClients = xQueueCreate( 10, sizeof(WiFiClient*) );
@@ -160,7 +167,9 @@ void camCB(void* pvParameters) {
 
   for (;;) {
 
-    //  Grab a frame from the camera and query its size
+    // Grab a frame from the camera and query its size
+    // lock access to the camera until we've read the frame
+    xSemaphoreTake( camSync, portMAX_DELAY );
     cam.run();
     size_t s = cam.getSize();
 
@@ -173,6 +182,8 @@ void camCB(void* pvParameters) {
     //  Copy current frame into local buffer
     char* b = (char*) cam.getfb();
     memcpy(fbs[ifb], b, s);
+
+    xSemaphoreGive( camSync );
 
     //  Let other tasks run and wait until the end of the current frame rate interval (if any time left)
     taskYIELD();
@@ -359,9 +370,12 @@ void handleJPG(void)
   WiFiClient client = server.client();
 
   if (!client.connected()) return;
+
+  xSemaphoreTake( camSync, portMAX_DELAY );
   cam.run();
   client.write(JHEADER, jhdLen);
   client.write((char*)cam.getfb(), cam.getSize());
+  xSemaphoreGive( camSync );
 }
 
 
