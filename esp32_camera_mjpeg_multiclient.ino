@@ -448,7 +448,7 @@ void setup()
 #ifdef HMIRROR
   s->set_hmirror(s, 1) ;
 #endif
-#ifdef FLIP  
+#ifdef VFLIP  
   s->set_vflip(s, 1);
 #endif
 

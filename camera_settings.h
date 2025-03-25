@@ -5,8 +5,8 @@
 // set a custom framerate for the motion jpeg stream
 //#define FPS 7
 
-// uncomment to flip the camera image
-//#define FLIP
+// uncomment to vertically flip the camera image
+//#define VFLIP
 
 // uncomment to apply a horizontal mirror to the camera image
 //#define HMIRROR
