@@ -470,6 +470,11 @@ void setup()
   Serial.print(ip);
   Serial.println("/mjpeg/1");
 
+#ifdef ENABLE_FLASH_LED
+  // turn on the flash LED if required. Is also a good indicator the wifi has connected
+  pinMode(4, OUTPUT);
+  digitalWrite(4, HIGH);
+#endif
 
   // Start mainstreaming RTOS task
   xTaskCreatePinnedToCore(

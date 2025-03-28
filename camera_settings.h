@@ -11,6 +11,9 @@
 // uncomment to apply a horizontal mirror to the camera image
 //#define HMIRROR
 
+// uncomment to enable the flash LED
+//#define ENABLE_FLASH_LED
+
 #ifndef FPS
 #define FPS 25
 #endif
